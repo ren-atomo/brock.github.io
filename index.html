@@ -1,49 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #303030; /* 背景色を設定 */
+    }
+
     .rectangle {
       position: absolute;
+      box-sizing: border-box;
+      transition: transform 5s linear, box-shadow 5s linear; /* 上昇スピードとぼかしのアニメーションを追加 */
+    }
+
+    .special-rectangle {
+      background-color: #ffd700; /* もしくは #ffff00 */
+      box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.8); /* 強いぼかしを追加 */
     }
   </style>
 </head>
 <body>
-  <script>
-    // 画面の幅と高さを取得
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
 
-    // 長方形をランダムに生成して表示
-    function createRandomRectangle() {
-      const rectangle = document.createElement("div");
-      rectangle.classList.add("rectangle");
-      
-      // ランダムな色を生成
-      const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-      rectangle.style.backgroundColor = randomColor;
-
-      // ランダムな幅と高さを生成
-      const randomWidth = Math.floor(Math.random() * (screenWidth / 2));
-      const randomHeight = Math.floor(Math.random() * (screenHeight / 2));
-      rectangle.style.width = randomWidth + "px";
-      rectangle.style.height = randomHeight + "px";
-
-      // ランダムな位置に配置
-      const randomX = Math.floor(Math.random() * (screenWidth - randomWidth));
-      const randomY = Math.floor(Math.random() * (screenHeight - randomHeight));
-      rectangle.style.left = randomX + "px";
-      rectangle.style.top = randomY + "px";
-
-      document.body.appendChild(rectangle);
+<script>
+  function createRectangle() {
+    const rectangle = document.createElement('div');
+    rectangle.classList.add('rectangle');
+    const isSpecial = Math.random() < 0.1; // 5%の確率で特別な正方形を生成
+    if (isSpecial) {
+      rectangle.classList.add('special-rectangle');
+    } else {
+      // 色をランダムに設定
+      const color = Math.random() < 0.5 ? 'black' : 'white';
+      rectangle.style.backgroundColor = color;
     }
 
-    // 画面を読み込んだときに長方形を生成
-    window.onload = function() {
-      const numRectangles = 10; // 表示する長方形の数
-      for (let i = 0; i < numRectangles; i++) {
-        createRandomRectangle();
-      }
-    };
-  </script>
+    const size = isSpecial ? 20 : Math.random() * 150 + 50; // 特別な正方形の場合は小さいサイズ
+    rectangle.style.width = `${size}px`;
+    rectangle.style.height = `${size / 2}px`; // 縦横比を保つためにheightもサイズに対応させます
+    rectangle.style.left = `${Math.random() * (window.innerWidth - size)}px`;
+    rectangle.style.bottom = '0';
+
+    // より強いぼかしを追加
+    rectangle.style.boxShadow = `0 0 20px 5px rgba(0, 0, 0, 0.5)`;
+
+    document.body.appendChild(rectangle);
+
+    setTimeout(() => {
+      rectangle.style.transform = `translateY(-${window.innerHeight}px)`; // 修正: translateYの値を変更
+      rectangle.style.boxShadow = `0 0 0 rgba(0, 0, 0, 0)`; // 上昇アニメーション中にぼかしを解除
+    }, Math.random() * 0); // 修正: 出現タイミングをランダムに設定（1秒以内）
+
+    // 修正: 一番上に到達したら長方形を削除
+    rectangle.addEventListener('transitionend', () => {
+      document.body.removeChild(rectangle);
+    });
+  }
+
+  function init() {
+    createRectangle(); // 最初の1つを即座に生成
+    setInterval(() => {
+      createRectangle();
+    }, Math.random() * 500); // 新しい長方形が生成されるまでの待機時間を調整（最大2秒）
+  }
+
+  window.onload = init;
+</script>
+
 </body>
 </html>
